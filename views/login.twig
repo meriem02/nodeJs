@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Form</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 320px;
+      text-align: center;
+    }
+
+    .login-container h2 {
+      margin-bottom: 20px;
+      color: #6c757d;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .form-group label {
+      font-weight: normal;
+      margin-bottom: 8px;
+      color: #797878;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+
+    .form-group button {
+      background-color: #6c757d;
+      font-weight: bold;
+      color: #fff;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+      width: 150px;
+      margin-left: auto;
+    }
+
+    .form-group button:hover {
+      background-color: #8bad8e;
+    }
+  </style>
+  <script src="/socket.io/socket.io.js"></script>
+
+</head>
+<body>
+  <div class="login-container">
+    <h2>Bienvenue à GOLD CLUB</h2>
+    <form id="loginForm" class="login-form" action="/authenticate" method="post">
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur:</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Mot de passe:</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <div class="form-group">
+        <button type="submit" onclick="envoye()">Valider</button>
+      </div>
+      <button class="register-button" onclick="register()">S'inscrire</button>
+    </form>
+  </div>
+  <script>
+    const socket = io.connect();
+    document.getElementById("loginForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const user = {
+        username: username,
+        password: password
+      };
+
+      // Émettez les données directement au serveur
+      socket.emit("connectUser", user);
+    });
+
+    socket.on("connectUser", (data) => {
+      if (data.success) {
+        if (data.role === "admin") {
+          window.location.href = "/user/dashboard";
+        } else if (data.role === "user") {
+          window.location.href = "/user/userDashboard";
+        } else {
+          // Handle other roles or scenarios
+          console.error("Unknown role:", data.role);
+        }
+      } else {
+        // Affichez un popup dans le cas de success = false
+        alert("Nom d'utilisateur ou mot de passe incorrect");
+      }
+    });
+    function register() {
+      // Add your registration logic here
+      window.location.href = "/user/register";
+    }
+  </script>
+</body>
+</html>
